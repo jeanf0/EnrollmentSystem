@@ -6,9 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.jeanfraga.data.dto.CourseDTO;
-import com.jeanfraga.data.dto.StudentDTO;
-import com.jeanfraga.data.dto.SubjectDTO;
-import com.jeanfraga.data.dto.TeacherDTO;
 import com.jeanfraga.mapper.Mapper;
 import com.jeanfraga.models.Course;
 import com.jeanfraga.models.Student;
@@ -45,19 +42,6 @@ public class CourseService {
 
 		var vo = Mapper.parseObject(entity, CourseDTO.class);
 
-		if (entity.getSubject() != null) {
-			var subjectVO = Mapper.parseObject(entity.getSubject(), SubjectDTO.class);
-			vo.setSubject(subjectVO);
-		}
-		
-		if (entity.getTeacher() != null) {
-			var teacherVO = Mapper.parseObject(entity.getTeacher(), TeacherDTO.class);
-			vo.setTeacher(teacherVO);
-		}
-		if (!entity.getStudents().isEmpty()) {
-			var studentsVO = Mapper.parseListObjects(entity.getStudents(), StudentDTO.class);
-			vo.getStudents().addAll(studentsVO);
-		}
 		return vo;
 	}
 
@@ -93,11 +77,7 @@ public class CourseService {
 
 		course.setSubject(subject);
 		var entity = courseRepository.save(course);
-		var subjectVO = Mapper.parseObject(entity.getSubject(), SubjectDTO.class);
-
-		var vo = Mapper.parseObject(entity, CourseDTO.class);
-		vo.setSubject(subjectVO);
-		return vo;
+		return Mapper.parseObject(entity, CourseDTO.class);
 
 	}
 
@@ -105,15 +85,11 @@ public class CourseService {
 
 		Course course = courseRepository.findById(courseId).get();
 		Teacher teacher = teacherRepository.findById(teacherId).get();
-
+		
 		course.setTeacher(teacher);
 		var entity = courseRepository.save(course);
-		var teacherVO = Mapper.parseObject(entity.getTeacher(), TeacherDTO.class);
-
-		var vo = Mapper.parseObject(entity, CourseDTO.class);
-		vo.setTeacher(teacherVO);
-		return vo;
-
+		return Mapper.parseObject(entity, CourseDTO.class);
+		
 	}
 
 	public CourseDTO enrollStudent(Long courseId, Long studentId) {
@@ -124,12 +100,7 @@ public class CourseService {
 		course.enrollStudent(student);
 		var entity = courseRepository.save(course);
 
-		var vo = Mapper.parseObject(entity, CourseDTO.class);
-
-		var studentsVO = Mapper.parseListObjects(entity.getStudents(), StudentDTO.class);
-		vo.getStudents().addAll(studentsVO);
-
-		return vo;
+		return Mapper.parseObject(entity, CourseDTO.class);
 
 	}
 

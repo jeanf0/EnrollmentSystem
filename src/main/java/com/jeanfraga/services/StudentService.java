@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.jeanfraga.data.dto.CourseDTO;
 import com.jeanfraga.data.dto.StudentDTO;
 import com.jeanfraga.mapper.Mapper;
 import com.jeanfraga.models.Student;
@@ -53,6 +54,13 @@ public class StudentService {
 		var entity = studentRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Student not found!"));
 		studentRepository.delete(entity);
+	}
+	
+	public List<CourseDTO> listCoursesFromStudent(Long id) {
+		var student = studentRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Student not found!"));
+		
+		return Mapper.parseListObjects(student.getCourses(), CourseDTO.class);
 	}
 	
 	

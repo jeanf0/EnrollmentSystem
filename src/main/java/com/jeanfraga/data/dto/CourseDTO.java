@@ -71,6 +71,9 @@ public class CourseDTO implements Serializable{
 	public void enrollStudent(StudentDTO studentDTO) {
 		this.students.add(studentDTO);
 	}
+	public void enrollListStudents(List<StudentDTO> studentsDTO) {
+		this.students.addAll(studentsDTO);
+	}
 
 	@Override
 	public int hashCode() {

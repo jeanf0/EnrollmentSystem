@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jeanfraga.data.dto.CourseDTO;
 import com.jeanfraga.data.dto.StudentDTO;
 import com.jeanfraga.services.StudentService;
 
@@ -49,6 +50,9 @@ public class StudentController {
 		return ResponseEntity.noContent().build();
 	}
 	
-	
+	@GetMapping("/courses/{id}")
+	public ResponseEntity<List<CourseDTO>> listCoursesFromStudent(@PathVariable Long id) {
+		return ResponseEntity.ok(studentService.listCoursesFromStudent(id));
+	}
 
 }

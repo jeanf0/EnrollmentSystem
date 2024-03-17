@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.jeanfraga.data.dto.StudentDTO;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -96,6 +97,10 @@ public class Course implements Serializable{
 	
 	public void enrollStudent(Student student) {
 		this.students.add(student);
+	}
+	
+	public void enrollListStudents(List<Student> students) {
+		this.students.addAll(students);
 	}
 
 	@Override

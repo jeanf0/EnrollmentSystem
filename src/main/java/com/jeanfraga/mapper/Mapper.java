@@ -2,7 +2,6 @@ package com.jeanfraga.mapper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.lang.Class;
 
 import org.modelmapper.ModelMapper;
 
@@ -18,9 +17,19 @@ import com.jeanfraga.models.Teacher;
 public class Mapper {
 
 	private static ModelMapper mapper = new ModelMapper();
+	
 	static {
-		mapper.createTypeMap(Course.class, CourseDTO.class).addMapping(Course::getId, CourseDTO::setId);
-		mapper.createTypeMap(CourseDTO.class, Course.class).addMapping(CourseDTO::getId, Course::setId);
+		mapper.createTypeMap(Course.class, CourseDTO.class).addMappings(mapper -> {
+			mapper.map(src -> src.getSubject(), CourseDTO::setSubject);
+			mapper.map(src -> src.getTeacher(), CourseDTO::setTeacher);
+			mapper.map(src -> src.getStudents(), CourseDTO::enrollListStudents);
+		});
+		
+		mapper.createTypeMap(CourseDTO.class, Course.class).addMappings(mapper -> {
+			mapper.map(src -> src.getSubject(), Course::setSubject);
+			mapper.map(src -> src.getTeacher(), Course::setTeacher);
+			mapper.map(src -> src.getStudents(), Course::enrollListStudents);
+		});
 		
 		mapper.createTypeMap(Subject.class, SubjectDTO.class).addMapping(Subject::getId, SubjectDTO::setId);
 		mapper.createTypeMap(SubjectDTO.class, Subject.class).addMapping(SubjectDTO::getId, Subject::setId);
@@ -30,6 +39,7 @@ public class Mapper {
 		
 		mapper.createTypeMap(Teacher.class, TeacherDTO.class).addMapping(Teacher::getId, TeacherDTO::setId);
 		mapper.createTypeMap(TeacherDTO.class, Teacher.class).addMapping(TeacherDTO::getId, Teacher::setId);
+		
 	}
 	
 	public static <O, D> D parseObject(O origin, Class<D> destination) {
