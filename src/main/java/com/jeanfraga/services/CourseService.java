@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.jeanfraga.controllers.CourseController;
 import com.jeanfraga.data.dto.CourseDTO;
+import com.jeanfraga.exceptions.ResourceNotFoundException;
 import com.jeanfraga.mapper.Mapper;
 import com.jeanfraga.models.Course;
 import com.jeanfraga.models.Student;
@@ -43,7 +44,7 @@ public class CourseService {
 	}
 
 	public CourseDTO findById(Long id) {
-		var entity = courseRepository.findById(id).orElseThrow(() -> new RuntimeException("Course not found!"));
+		var entity = courseRepository.findById(id).orElseThrow(() ->  new ResourceNotFoundException("Not found resources for this ID!"));
 
 		var vo = Mapper.parseObject(entity, CourseDTO.class);
 		vo.add(linkTo(methodOn(CourseController.class).findById(id)).withSelfRel());
@@ -60,7 +61,7 @@ public class CourseService {
 
 	public CourseDTO update(CourseDTO courseDTO) {
 		var course = courseRepository.findById(courseDTO.getKey())
-				.orElseThrow(() -> new RuntimeException("Course not found!"));
+				.orElseThrow(() ->  new ResourceNotFoundException("Not found resources for this ID!"));
 
 		course.setName(courseDTO.getName());
 		course.setSession(courseDTO.getSession());
@@ -73,14 +74,14 @@ public class CourseService {
 	}
 
 	public void delete(Long id) {
-		var entity = courseRepository.findById(id).orElseThrow(() -> new RuntimeException("Course not found!"));
+		var entity = courseRepository.findById(id).orElseThrow(() ->  new ResourceNotFoundException("Not found resources for this ID!"));
 		courseRepository.delete(entity);
 	}
 
 	public CourseDTO setSubject(Long courseId, Long subjectId) {
 
-		Course course = courseRepository.findById(courseId).get();
-		Subject subject = subjectRepository.findById(subjectId).get();
+		Course course = courseRepository.findById(courseId).orElseThrow(() ->  new ResourceNotFoundException("Not found resources for this ID!"));;
+		Subject subject = subjectRepository.findById(subjectId).orElseThrow(() ->  new ResourceNotFoundException("Not found resources for this ID!"));;
 
 		course.setSubject(subject);
 		var entity = courseRepository.save(course);
@@ -92,8 +93,8 @@ public class CourseService {
 
 	public CourseDTO assignTeacher(Long courseId, Long teacherId) {
 
-		Course course = courseRepository.findById(courseId).get();
-		Teacher teacher = teacherRepository.findById(teacherId).get();
+		Course course = courseRepository.findById(courseId).orElseThrow(() ->  new ResourceNotFoundException("Not found resources for this ID!"));;
+		Teacher teacher = teacherRepository.findById(teacherId).orElseThrow(() ->  new ResourceNotFoundException("Not found resources for this ID!"));;
 		
 		course.setTeacher(teacher);
 		var entity = courseRepository.save(course);
@@ -105,8 +106,8 @@ public class CourseService {
 
 	public CourseDTO enrollStudent(Long courseId, Long studentId) {
 
-		Course course = courseRepository.findById(courseId).get();
-		Student student = studentRepository.findById(studentId).get();
+		Course course = courseRepository.findById(courseId).orElseThrow(() ->  new ResourceNotFoundException("Not found resources for this ID!"));;
+		Student student = studentRepository.findById(studentId).orElseThrow(() ->  new ResourceNotFoundException("Not found resources for this ID!"));;
 
 		course.enrollStudent(student);
 		var entity = courseRepository.save(course);

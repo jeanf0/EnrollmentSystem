@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.jeanfraga.controllers.StudentController;
 import com.jeanfraga.data.dto.CourseDTO;
 import com.jeanfraga.data.dto.StudentDTO;
+import com.jeanfraga.exceptions.ResourceNotFoundException;
 import com.jeanfraga.mapper.Mapper;
 import com.jeanfraga.models.Student;
 import com.jeanfraga.repositories.StudentRepository;
@@ -32,7 +33,7 @@ public class StudentService {
 	
 	public StudentDTO findById(Long id) {
 		var entity = studentRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Student not found!"));
+				.orElseThrow(() ->  new ResourceNotFoundException("Not found resources for this ID!"));
 		
 		var vo = Mapper.parseObject(entity,StudentDTO.class);
 		vo.add(linkTo(methodOn(StudentController.class).findById(vo.getKey())).withSelfRel());
@@ -49,7 +50,7 @@ public class StudentService {
 	
 	public StudentDTO update(StudentDTO studentDTO) {
 		var student = studentRepository.findById(studentDTO.getKey())
-				.orElseThrow(() -> new RuntimeException("Student not found!"));
+				.orElseThrow(() ->  new ResourceNotFoundException("Not found resources for this ID!"));
 		
 		student.setFirstName(studentDTO.getFirstName());
 		student.setLastName(studentDTO.getLastName());
@@ -64,13 +65,13 @@ public class StudentService {
 	
 	public void delete(Long id) {
 		var entity = studentRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Student not found!"));
+				.orElseThrow(() ->  new ResourceNotFoundException("Not found resources for this ID!"));
 		studentRepository.delete(entity);
 	}
 	
 	public List<CourseDTO> listCoursesFromStudent(Long id) {
 		var student = studentRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Student not found!"));
+				.orElseThrow(() ->  new ResourceNotFoundException("Not found resources for this ID!"));
 		
 		var coursesVo = Mapper.parseListObjects(student.getCourses(), CourseDTO.class);
 		coursesVo.stream().forEach(c -> c.add(linkTo(methodOn(StudentController.class).listCoursesFromStudent(id)).withSelfRel()));

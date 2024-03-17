@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.jeanfraga.controllers.TeacherController;
 import com.jeanfraga.data.dto.TeacherDTO;
+import com.jeanfraga.exceptions.ResourceNotFoundException;
 import com.jeanfraga.mapper.Mapper;
 import com.jeanfraga.models.Teacher;
 import com.jeanfraga.repositories.TeacherRepository;
@@ -30,7 +31,7 @@ public class TeacherService {
 	
 	public TeacherDTO findById(Long id) {
 		var entity = teacherRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Teacher not found!"));
+				.orElseThrow(() ->  new ResourceNotFoundException("Not found resources for this ID!"));
 		var vo = Mapper.parseObject(entity,TeacherDTO.class);
 		vo.add(linkTo(methodOn(TeacherController.class).findById(id)).withSelfRel());
 		
@@ -47,7 +48,7 @@ public class TeacherService {
 	
 	public TeacherDTO update(TeacherDTO teacherDTO) {
 		var teacher = teacherRepository.findById(teacherDTO.getKey())
-				.orElseThrow(() -> new RuntimeException("Teacher not found!"));
+				.orElseThrow(() ->  new ResourceNotFoundException("Not found resources for this ID!"));
 		
 		teacher.setFirstName(teacherDTO.getFirstName());
 		teacher.setLastName(teacherDTO.getLastName());
@@ -62,7 +63,7 @@ public class TeacherService {
 	
 	public void delete(Long id) {
 		var entity = teacherRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Teacher not found!"));
+				.orElseThrow(() ->  new ResourceNotFoundException("Not found resources for this ID!"));
 		teacherRepository.delete(entity);
 	}
 	
