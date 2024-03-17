@@ -4,30 +4,32 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
 
-public class TeacherDTO implements Serializable {
+import org.springframework.hateoas.RepresentationModel;
+
+public class TeacherDTO extends RepresentationModel<TeacherDTO> implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private Long id;
+	private Long key;
 	private String firstName;
 	private String lastName;
 	private LocalDate birthday;
 	
 	public TeacherDTO() {}
 
-	public TeacherDTO(Long id, String firstName, String lastName, LocalDate birthday) {
-		this.id = id;
+	public TeacherDTO(Long key, String firstName, String lastName, LocalDate birthday) {
+		this.key = key;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.birthday = birthday;
 	}
 
-	public Long getId() {
-		return id;
+	public Long getKey() {
+		return key;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setKey(Long key) {
+		this.key = key;
 	}
 
 	public String getFirstName() {
@@ -56,7 +58,7 @@ public class TeacherDTO implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(birthday, firstName, id, lastName);
+		return Objects.hash(birthday, firstName, key, lastName);
 	}
 
 	@Override
@@ -69,6 +71,6 @@ public class TeacherDTO implements Serializable {
 			return false;
 		TeacherDTO other = (TeacherDTO) obj;
 		return Objects.equals(birthday, other.birthday) && Objects.equals(firstName, other.firstName)
-				&& Objects.equals(id, other.id) && Objects.equals(lastName, other.lastName);
+				&& Objects.equals(key, other.key) && Objects.equals(lastName, other.lastName);
 	}
 }

@@ -3,8 +3,11 @@ package com.jeanfraga.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import org.springframework.stereotype.Service;
 
+import com.jeanfraga.controllers.CourseController;
 import com.jeanfraga.data.dto.CourseDTO;
 import com.jeanfraga.mapper.Mapper;
 import com.jeanfraga.models.Course;
@@ -34,14 +37,16 @@ public class CourseService {
 	public List<CourseDTO> findAll() {
 		var entities = courseRepository.findAll();
 
-		return Mapper.parseListObjects(entities, CourseDTO.class);
+		var courses =  Mapper.parseListObjects(entities, CourseDTO.class);
+		courses.stream().forEach(c -> c.add(linkTo(methodOn(CourseController.class).findById(c.getKey())).withSelfRel()));
+		return courses;
 	}
 
 	public CourseDTO findById(Long id) {
 		var entity = courseRepository.findById(id).orElseThrow(() -> new RuntimeException("Course not found!"));
 
 		var vo = Mapper.parseObject(entity, CourseDTO.class);
-
+		vo.add(linkTo(methodOn(CourseController.class).findById(id)).withSelfRel());
 		return vo;
 	}
 
@@ -49,12 +54,12 @@ public class CourseService {
 		var entity = Mapper.parseObject(courseDTO, Course.class);
 		entity = courseRepository.save(entity);
 		var vo = Mapper.parseObject(entity, CourseDTO.class);
-
+		vo.add(linkTo(methodOn(CourseController.class).findById(vo.getKey())).withSelfRel());
 		return vo;
 	}
 
 	public CourseDTO update(CourseDTO courseDTO) {
-		var course = courseRepository.findById(courseDTO.getId())
+		var course = courseRepository.findById(courseDTO.getKey())
 				.orElseThrow(() -> new RuntimeException("Course not found!"));
 
 		course.setName(courseDTO.getName());
@@ -62,7 +67,9 @@ public class CourseService {
 
 		var entity = courseRepository.save(course);
 
-		return Mapper.parseObject(entity, CourseDTO.class);
+		var vo = Mapper.parseObject(entity, CourseDTO.class);
+		vo.add(linkTo(methodOn(CourseController.class).findById(vo.getKey())).withSelfRel());
+		return vo;
 	}
 
 	public void delete(Long id) {
@@ -77,7 +84,9 @@ public class CourseService {
 
 		course.setSubject(subject);
 		var entity = courseRepository.save(course);
-		return Mapper.parseObject(entity, CourseDTO.class);
+		var vo = Mapper.parseObject(entity, CourseDTO.class);
+		vo.add(linkTo(methodOn(CourseController.class).findById(vo.getKey())).withSelfRel());
+		return vo;
 
 	}
 
@@ -88,7 +97,9 @@ public class CourseService {
 		
 		course.setTeacher(teacher);
 		var entity = courseRepository.save(course);
-		return Mapper.parseObject(entity, CourseDTO.class);
+		var vo = Mapper.parseObject(entity, CourseDTO.class);
+		vo.add(linkTo(methodOn(CourseController.class).findById(vo.getKey())).withSelfRel());
+		return vo;
 		
 	}
 
@@ -100,7 +111,9 @@ public class CourseService {
 		course.enrollStudent(student);
 		var entity = courseRepository.save(course);
 
-		return Mapper.parseObject(entity, CourseDTO.class);
+		var vo = Mapper.parseObject(entity, CourseDTO.class);
+		vo.add(linkTo(methodOn(CourseController.class).findById(vo.getKey())).withSelfRel());
+		return vo;
 
 	}
 

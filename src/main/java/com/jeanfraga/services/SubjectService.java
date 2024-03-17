@@ -1,10 +1,14 @@
 package com.jeanfraga.services;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.jeanfraga.controllers.SubjectController;
 import com.jeanfraga.data.dto.SubjectDTO;
 import com.jeanfraga.mapper.Mapper;
 import com.jeanfraga.models.Subject;
@@ -19,7 +23,10 @@ public class SubjectService {
 	
 	public List<SubjectDTO> findAll() {
 		var entities = subjectRepository.findAll();
-		return Mapper.parseListObjects(entities, SubjectDTO.class);
+		var subjects = Mapper.parseListObjects(entities, SubjectDTO.class);
+		subjects.stream().forEach(t -> t.add(linkTo(methodOn(SubjectController.class).findById(t.getKey())).withSelfRel()));
+		
+		return subjects;
 	}
 	
 	public SubjectDTO findById(Long id) {
@@ -27,17 +34,20 @@ public class SubjectService {
 				.orElseThrow(() -> new RuntimeException("Subject not found!"));
 		
 		var vo = Mapper.parseObject(entity,SubjectDTO.class);
+		vo.add(linkTo(methodOn(SubjectController.class).findById(id)).withSelfRel());
 		return vo;
 	}
 	
 	public SubjectDTO create(SubjectDTO subjectDTO) {
 		var entity = Mapper.parseObject(subjectDTO, Subject.class);
 		
-		return Mapper.parseObject(subjectRepository.save(entity), SubjectDTO.class);
+		var vo = Mapper.parseObject(subjectRepository.save(entity), SubjectDTO.class);
+		vo.add(linkTo(methodOn(SubjectController.class).findById(vo.getKey())).withSelfRel());
+		return vo;
 	}
 	
 	public SubjectDTO update(SubjectDTO subjectDTO) {
-		var subject = subjectRepository.findById(subjectDTO.getId())
+		var subject = subjectRepository.findById(subjectDTO.getKey())
 				.orElseThrow(() -> new RuntimeException("Subject not found!"));
 		
 		subject.setName(subjectDTO.getName());
@@ -46,7 +56,9 @@ public class SubjectService {
 		
 		var entity = subjectRepository.save(subject);
 		
-		return Mapper.parseObject(entity ,SubjectDTO.class);
+		var vo = Mapper.parseObject(entity ,SubjectDTO.class);
+		vo.add(linkTo(methodOn(SubjectController.class).findById(vo.getKey())).withSelfRel());
+		return vo;
 	}
 	
 	public void delete(Long id) {

@@ -3,10 +3,12 @@ package com.jeanfraga.data.dto;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class SubjectDTO implements Serializable{
+import org.springframework.hateoas.RepresentationModel;
+
+public class SubjectDTO extends RepresentationModel<SubjectDTO> implements Serializable{
 
 	private static final long serialVersionUID = 1L;
-	private Long id;
+	private Long key;
 	private String name;
 	private String description;
 	private Integer workload;
@@ -15,19 +17,19 @@ public class SubjectDTO implements Serializable{
 	public SubjectDTO() {
 	}
 
-	public SubjectDTO(Long id, String name, String description, Integer workload) {
-		this.id = id;
+	public SubjectDTO(Long key, String name, String description, Integer workload) {
+		this.key = key;
 		this.name = name;
 		this.description = description;
 		this.workload = workload;
 	}
 
-	public Long getId() {
-		return id;
+	public Long getKey() {
+		return key;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setKey(Long key) {
+		this.key = key;
 	}
 
 	public String getName() {
@@ -56,7 +58,7 @@ public class SubjectDTO implements Serializable{
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(description, id, name, workload);
+		return Objects.hash(description, key, name, workload);
 	}
 
 	@Override
@@ -68,7 +70,7 @@ public class SubjectDTO implements Serializable{
 		if (getClass() != obj.getClass())
 			return false;
 		SubjectDTO other = (SubjectDTO) obj;
-		return Objects.equals(description, other.description) && Objects.equals(id, other.id)
+		return Objects.equals(description, other.description) && Objects.equals(key, other.key)
 				&& Objects.equals(name, other.name) && Objects.equals(workload, other.workload);
 	}
 }

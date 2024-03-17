@@ -20,25 +20,27 @@ public class Mapper {
 	
 	static {
 		mapper.createTypeMap(Course.class, CourseDTO.class).addMappings(mapper -> {
+			mapper.map(src -> src.getId(), CourseDTO::setKey);
 			mapper.map(src -> src.getSubject(), CourseDTO::setSubject);
 			mapper.map(src -> src.getTeacher(), CourseDTO::setTeacher);
 			mapper.map(src -> src.getStudents(), CourseDTO::enrollListStudents);
 		});
 		
 		mapper.createTypeMap(CourseDTO.class, Course.class).addMappings(mapper -> {
+			mapper.map(src -> src.getKey(), Course::setId);
 			mapper.map(src -> src.getSubject(), Course::setSubject);
 			mapper.map(src -> src.getTeacher(), Course::setTeacher);
 			mapper.map(src -> src.getStudents(), Course::enrollListStudents);
 		});
 		
-		mapper.createTypeMap(Subject.class, SubjectDTO.class).addMapping(Subject::getId, SubjectDTO::setId);
-		mapper.createTypeMap(SubjectDTO.class, Subject.class).addMapping(SubjectDTO::getId, Subject::setId);
+		mapper.createTypeMap(Subject.class, SubjectDTO.class).addMapping(Subject::getId, SubjectDTO::setKey);
+		mapper.createTypeMap(SubjectDTO.class, Subject.class).addMapping(SubjectDTO::getKey, Subject::setId);
 		
-		mapper.createTypeMap(Student.class, StudentDTO.class).addMapping(Student::getId, StudentDTO::setId);
-		mapper.createTypeMap(StudentDTO.class, Student.class).addMapping(StudentDTO::getId, Student::setId);
+		mapper.createTypeMap(Student.class, StudentDTO.class).addMapping(Student::getId, StudentDTO::setKey);
+		mapper.createTypeMap(StudentDTO.class, Student.class).addMapping(StudentDTO::getKey, Student::setId);
 		
-		mapper.createTypeMap(Teacher.class, TeacherDTO.class).addMapping(Teacher::getId, TeacherDTO::setId);
-		mapper.createTypeMap(TeacherDTO.class, Teacher.class).addMapping(TeacherDTO::getId, Teacher::setId);
+		mapper.createTypeMap(Teacher.class, TeacherDTO.class).addMapping(Teacher::getId, TeacherDTO::setKey);
+		mapper.createTypeMap(TeacherDTO.class, Teacher.class).addMapping(TeacherDTO::getKey, Teacher::setId);
 		
 	}
 	

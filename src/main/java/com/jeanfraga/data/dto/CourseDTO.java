@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class CourseDTO implements Serializable{
+import org.springframework.hateoas.RepresentationModel;
+
+public class CourseDTO extends RepresentationModel<CourseDTO> implements Serializable{
 
 	private static final long serialVersionUID = 1L;
-	private Long id;
+	private Long key;
 	private String name;
 	private String session;
 	
@@ -18,18 +20,18 @@ public class CourseDTO implements Serializable{
 	private List<StudentDTO> students = new ArrayList<>();
 	
 	public CourseDTO() {}
-	public CourseDTO(Long id, String name, String session) {
-		this.id = id;
+	public CourseDTO(Long key, String name, String session) {
+		this.key = key;
 		this.name = name;
 		this.session = session;
 	}
 
-	public Long getId() {
-		return id;
+	public Long getKey() {
+		return key;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setKey(Long key) {
+		this.key = key;
 	}
 
 	public String getName() {
@@ -77,7 +79,7 @@ public class CourseDTO implements Serializable{
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, session, subject);
+		return Objects.hash(key, name, session, subject);
 	}
 
 	@Override
@@ -89,7 +91,7 @@ public class CourseDTO implements Serializable{
 		if (getClass() != obj.getClass())
 			return false;
 		CourseDTO other = (CourseDTO) obj;
-		return Objects.equals(id, other.id) && Objects.equals(name, other.name)
+		return Objects.equals(key, other.key) && Objects.equals(name, other.name)
 				&& Objects.equals(session, other.session) && Objects.equals(subject, other.subject);
 	}
 }

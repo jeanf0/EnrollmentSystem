@@ -1,10 +1,14 @@
 package com.jeanfraga.services;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.jeanfraga.controllers.StudentController;
 import com.jeanfraga.data.dto.CourseDTO;
 import com.jeanfraga.data.dto.StudentDTO;
 import com.jeanfraga.mapper.Mapper;
@@ -20,7 +24,10 @@ public class StudentService {
 	
 	public List<StudentDTO> findAll() {
 		var entities = studentRepository.findAll();
-		return Mapper.parseListObjects(entities, StudentDTO.class);
+		var students = Mapper.parseListObjects(entities, StudentDTO.class);
+		students.stream().forEach(s -> s.add(linkTo(methodOn(StudentController.class).findById(s.getKey())).withSelfRel()));
+		
+		return students;
 	}
 	
 	public StudentDTO findById(Long id) {
@@ -28,17 +35,20 @@ public class StudentService {
 				.orElseThrow(() -> new RuntimeException("Student not found!"));
 		
 		var vo = Mapper.parseObject(entity,StudentDTO.class);
+		vo.add(linkTo(methodOn(StudentController.class).findById(vo.getKey())).withSelfRel());
 		return vo;
 	}
 	
 	public StudentDTO create(StudentDTO studentDTO) {
 		var entity = Mapper.parseObject(studentDTO, Student.class);
 		
-		return Mapper.parseObject(studentRepository.save(entity), StudentDTO.class);
+		var vo = Mapper.parseObject(studentRepository.save(entity), StudentDTO.class);
+		vo.add(linkTo(methodOn(StudentController.class).findById(vo.getKey())).withSelfRel());
+		return vo;
 	}
 	
 	public StudentDTO update(StudentDTO studentDTO) {
-		var student = studentRepository.findById(studentDTO.getId())
+		var student = studentRepository.findById(studentDTO.getKey())
 				.orElseThrow(() -> new RuntimeException("Student not found!"));
 		
 		student.setFirstName(studentDTO.getFirstName());
@@ -47,7 +57,9 @@ public class StudentService {
 		
 		var entity = studentRepository.save(student);
 		
-		return Mapper.parseObject(entity ,StudentDTO.class);
+		var vo = Mapper.parseObject(entity ,StudentDTO.class);
+		vo.add(linkTo(methodOn(StudentController.class).findById(vo.getKey())).withSelfRel());
+		return vo;
 	}
 	
 	public void delete(Long id) {
@@ -60,7 +72,10 @@ public class StudentService {
 		var student = studentRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Student not found!"));
 		
-		return Mapper.parseListObjects(student.getCourses(), CourseDTO.class);
+		var coursesVo = Mapper.parseListObjects(student.getCourses(), CourseDTO.class);
+		coursesVo.stream().forEach(c -> c.add(linkTo(methodOn(StudentController.class).listCoursesFromStudent(id)).withSelfRel()));
+		
+		return coursesVo;
 	}
 	
 	
