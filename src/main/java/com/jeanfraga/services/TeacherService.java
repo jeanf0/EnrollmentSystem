@@ -1,10 +1,14 @@
 package com.jeanfraga.services;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 
 import com.jeanfraga.controllers.TeacherController;
@@ -20,13 +24,34 @@ public class TeacherService {
 	@Autowired
 	private TeacherRepository teacherRepository;
 	
+	@Autowired
+	private PagedResourcesAssembler<TeacherDTO> assembler;
 	
-	public List<TeacherDTO> findAll() {
-		var entities = teacherRepository.findAll();
-		var teachers = Mapper.parseListObjects(entities, TeacherDTO.class);
-		teachers.stream().forEach(t -> t.add(linkTo(methodOn(TeacherController.class).findById(t.getKey())).withSelfRel()));
+	
+	public PagedModel<EntityModel<TeacherDTO>> findAll(Pageable pageable) {
+		var teachersPage = teacherRepository.findAll(pageable);
+		var teachersDTOsPage = teachersPage.map(t -> Mapper.parseObject(t, TeacherDTO.class));
+		teachersDTOsPage.map(t -> t.add(linkTo(methodOn(TeacherController.class).findById(t.getKey())).withSelfRel()));
 		
-		return teachers;
+		
+		
+		Link link = linkTo(
+				methodOn(TeacherController.class)
+				.findAll(pageable.getPageNumber(), pageable.getPageSize(), "asc")).withSelfRel();
+		return assembler.toModel(teachersDTOsPage, link);
+	}
+	
+	public PagedModel<EntityModel<TeacherDTO>> findAllTeacherByName(String firstName, Pageable pageable) {
+		var teachersPage = teacherRepository.findByFirstNameContaining(firstName, pageable);
+		var teachersDTOsPage = teachersPage.map(t -> Mapper.parseObject(t, TeacherDTO.class));
+		teachersDTOsPage.map(t -> t.add(linkTo(methodOn(TeacherController.class).findById(t.getKey())).withSelfRel()));
+		
+		
+		
+		Link link = linkTo(
+				methodOn(TeacherController.class)
+				.findAll(pageable.getPageNumber(), pageable.getPageSize(), "asc")).withSelfRel();
+		return assembler.toModel(teachersDTOsPage, link);
 	}
 	
 	public TeacherDTO findById(Long id) {

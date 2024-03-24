@@ -3,9 +3,12 @@ package com.jeanfraga.services;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 
 import com.jeanfraga.controllers.SubjectController;
@@ -21,13 +24,34 @@ public class SubjectService {
 	@Autowired
 	private SubjectRepository subjectRepository;
 	
+	@Autowired
+	private PagedResourcesAssembler<SubjectDTO> assembler;
 	
-	public List<SubjectDTO> findAll() {
-		var entities = subjectRepository.findAll();
-		var subjects = Mapper.parseListObjects(entities, SubjectDTO.class);
-		subjects.stream().forEach(t -> t.add(linkTo(methodOn(SubjectController.class).findById(t.getKey())).withSelfRel()));
+	
+	public PagedModel<EntityModel<SubjectDTO>> findAll(Pageable pageable) {
+		var subjectsPage = subjectRepository.findAll(pageable);
+		var subjectsDTOsPage = subjectsPage.map(s -> Mapper.parseObject(s, SubjectDTO.class));
+		subjectsDTOsPage.map(s -> s.add(linkTo(methodOn(SubjectController.class).findById(s.getKey())).withSelfRel()));
 		
-		return subjects;
+		
+		
+		Link link = linkTo(
+				methodOn(SubjectController.class)
+				.findAll(pageable.getPageNumber(), pageable.getPageSize(), "asc")).withSelfRel();
+		return assembler.toModel(subjectsDTOsPage, link);
+	}
+	
+	public PagedModel<EntityModel<SubjectDTO>> findAllSubjectByName(String name, Pageable pageable) {
+		var subjectsPage = subjectRepository.findByNameContaining(name, pageable);
+		var subjectsDTOsPage = subjectsPage.map(s -> Mapper.parseObject(s, SubjectDTO.class));
+		subjectsDTOsPage.map(s -> s.add(linkTo(methodOn(SubjectController.class).findById(s.getKey())).withSelfRel()));
+		
+		
+		
+		Link link = linkTo(
+				methodOn(SubjectController.class)
+				.findAll(pageable.getPageNumber(), pageable.getPageSize(), "asc")).withSelfRel();
+		return assembler.toModel(subjectsDTOsPage, link);
 	}
 	
 	public SubjectDTO findById(Long id) {

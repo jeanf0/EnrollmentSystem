@@ -6,6 +6,11 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 
 import com.jeanfraga.controllers.StudentController;
@@ -23,12 +28,33 @@ public class StudentService {
 	private StudentRepository studentRepository;
 	
 	
-	public List<StudentDTO> findAll() {
-		var entities = studentRepository.findAll();
-		var students = Mapper.parseListObjects(entities, StudentDTO.class);
-		students.stream().forEach(s -> s.add(linkTo(methodOn(StudentController.class).findById(s.getKey())).withSelfRel()));
+	@Autowired
+	private PagedResourcesAssembler<StudentDTO> assembler;
+	
+	
+	public PagedModel<EntityModel<StudentDTO>> findAll(Pageable pageable) {
+		var studentsPage = studentRepository.findAll(pageable);
+		var studentsDTOsPage = studentsPage.map(s -> Mapper.parseObject(s, StudentDTO.class));
+		studentsDTOsPage.map(s -> s.add(linkTo(methodOn(StudentController.class).findById(s.getKey())).withSelfRel()));
 		
-		return students;
+		
+		
+		Link link = linkTo(
+				methodOn(StudentController.class)
+				.findAll(pageable.getPageNumber(), pageable.getPageSize(), "asc")).withSelfRel();
+		return assembler.toModel(studentsDTOsPage, link);
+	}
+	
+	public PagedModel<EntityModel<StudentDTO>> findAllStudentByName(String firstName, Pageable pageable) {
+		var studentsPage = studentRepository.findByFirstNameContaining(firstName, pageable);
+		var studentsDTOsPage = studentsPage.map(s -> Mapper.parseObject(s, StudentDTO.class));
+		studentsDTOsPage.map(s -> s.add(linkTo(methodOn(StudentController.class).findById(s.getKey())).withSelfRel()));
+		
+		
+		Link link = linkTo(
+				methodOn(StudentController.class)
+				.findAll(pageable.getPageNumber(), pageable.getPageSize(), "asc")).withSelfRel();
+		return assembler.toModel(studentsDTOsPage, link);
 	}
 	
 	public StudentDTO findById(Long id) {

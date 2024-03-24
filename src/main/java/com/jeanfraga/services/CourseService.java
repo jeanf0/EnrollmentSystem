@@ -1,10 +1,14 @@
 package com.jeanfraga.services;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 
 import com.jeanfraga.controllers.CourseController;
@@ -35,12 +39,34 @@ public class CourseService {
 	@Autowired
 	private StudentRepository studentRepository;
 
-	public List<CourseDTO> findAll() {
-		var entities = courseRepository.findAll();
-
-		var courses =  Mapper.parseListObjects(entities, CourseDTO.class);
-		courses.stream().forEach(c -> c.add(linkTo(methodOn(CourseController.class).findById(c.getKey())).withSelfRel()));
-		return courses;
+	@Autowired
+	private PagedResourcesAssembler<CourseDTO> assembler;
+	
+	
+	public PagedModel<EntityModel<CourseDTO>> findAll(Pageable pageable) {
+		var coursesPage = courseRepository.findAll(pageable);
+		var coursesDTOsPage = coursesPage.map(c -> Mapper.parseObject(c, CourseDTO.class));
+		coursesDTOsPage.map(c -> c.add(linkTo(methodOn(CourseController.class).findById(c.getKey())).withSelfRel()));
+		
+		
+		
+		Link link = linkTo(
+				methodOn(CourseController.class)
+				.findAll(pageable.getPageNumber(), pageable.getPageSize(), "asc")).withSelfRel();
+		return assembler.toModel(coursesDTOsPage, link);
+	}
+	
+	public PagedModel<EntityModel<CourseDTO>> findAllCourseByName(String name, Pageable pageable) {
+		var coursesPage = courseRepository.findByNameContaining(name, pageable);
+		var coursesDTOsPage = coursesPage.map(c -> Mapper.parseObject(c, CourseDTO.class));
+		coursesDTOsPage.map(c -> c.add(linkTo(methodOn(CourseController.class).findById(c.getKey())).withSelfRel()));
+		
+		
+		
+		Link link = linkTo(
+				methodOn(CourseController.class)
+				.findAll(pageable.getPageNumber(), pageable.getPageSize(), "asc")).withSelfRel();
+		return assembler.toModel(coursesDTOsPage, link);
 	}
 
 	public CourseDTO findById(Long id) {
